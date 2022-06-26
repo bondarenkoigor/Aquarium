@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using Aquarium.View.UserControls;
 using Aquarium.Control;
 using System.IO;
+using System.Threading;
 
 namespace Aquarium.View
 {
@@ -17,17 +18,20 @@ namespace Aquarium.View
         public MainForm()
         {
             InitializeComponent();
-            FoodController.Initialize();
-            FishUserControl fish = new FishUserControl();
-            fish.Location = new Point(this.Width / 2 - fish.Width, this.Height / 2 - fish.Height);
-            this.Controls.Add(fish);
-            Timer removeFood = new Timer();
-            removeFood.Interval = 10;
-            removeFood.Tick += (sender, e) =>
-                this.Controls.Remove(fish.ForRemoval);
-            removeFood.Start();
-
             this.DoubleBuffered = true;
+            FoodController.Initialize();
+            FishController.Initialize();
+
+            System.Windows.Forms.Timer removeFood = new System.Windows.Forms.Timer();
+            removeFood.Interval = 10;
+            removeFood.Tick += (s, e) => this.Controls.Remove(FoodController.ForControlRemoval);
+            removeFood.Start();
+            foreach (var fish in FishController.AllFish)
+            { 
+                FishUserControl fishUserControl = new FishUserControl(fish.Id);
+                this.Controls.Add(fishUserControl);
+            }
+
         }
 
 
@@ -58,6 +62,27 @@ namespace Aquarium.View
         private void MainForm_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.DrawImage(new Bitmap(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + @"\Resources\background.png"), 0, 0, this.ClientSize.Width, this.ClientSize.Height);
+        }
+
+        private void regularFishToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var fish = new Model.RegularFish();
+            FishController.AllFish.Add(fish);
+            this.Controls.Add(new FishUserControl(fish.Id));
+        }
+
+        private void goldfishToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var fish = new Model.Goldfish();
+            FishController.AllFish.Add(fish);
+            this.Controls.Add(new FishUserControl(fish.Id));
+        }
+
+        private void anglerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var fish = new Model.Angler();
+            FishController.AllFish.Add(fish);
+            this.Controls.Add(new FishUserControl(fish.Id));
         }
     }
 }

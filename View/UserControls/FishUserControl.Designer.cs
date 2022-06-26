@@ -35,11 +35,11 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Transparent;
-            this.BackgroundImage = global::Aquarium.Properties.Resources.fish;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.DoubleBuffered = true;
             this.Name = "FishUserControl";
-            this.Size = new System.Drawing.Size(74, 43);
+            this.Size = new System.Drawing.Size(100, 50);
+            this.Load += new System.EventHandler(this.FishUserControl_Load);
             this.ResumeLayout(false);
 
         }

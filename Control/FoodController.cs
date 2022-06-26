@@ -13,6 +13,8 @@ namespace Aquarium.Control
     {
         public static List<FoodUserControl> FoodList { get; set; }
 
+        public static FoodUserControl ForControlRemoval { get; set; }
+
         public static Timer MoveFoodDown = new Timer();
 
         public static void Initialize()
@@ -21,6 +23,7 @@ namespace Aquarium.Control
             MoveFoodDown.Tick += MoveFoodDown_Tick;
             MoveFoodDown.Interval = 500;
             MoveFoodDown.Start();
+
         }
 
         private static void MoveFoodDown_Tick(object sender, EventArgs e)

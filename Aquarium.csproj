@@ -46,7 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Control\FishController.cs" />
     <Compile Include="Control\FoodController.cs" />
+    <Compile Include="Model\Angler.cs" />
+    <Compile Include="Model\FishModel.cs" />
+    <Compile Include="Model\Goldfish.cs" />
+    <Compile Include="Model\RegularFish.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

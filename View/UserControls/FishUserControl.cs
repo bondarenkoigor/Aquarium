@@ -8,81 +8,46 @@ using System.Text;
 using System.Windows.Forms;
 using Aquarium.Control;
 using System.IO;
+using System.Threading.Tasks;
+using Aquarium.Model;
 
 namespace Aquarium.View.UserControls
 {
     public partial class FishUserControl : UserControl
     {
-        public FoodUserControl CurrentTarget { get; set; }
-        public FoodUserControl ForRemoval { get; set; }
-
-        public Image GoingRightImage { get; set; }
-        public Image GoingLeftImage { get; set; }
-        public FishUserControl()
+        private int FishID { get; set; }
+        private Timer UpdateTimer { get; set; }
+        public FishUserControl(int fishID)
         {
             InitializeComponent();
-
-            GoingLeftImage = new Bitmap(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + @"\Resources\fish.png");
-            GoingRightImage =  new Bitmap(GoingLeftImage);
-            GoingRightImage.RotateFlip(RotateFlipType.RotateNoneFlipX);
-
-            Timer seekFood = new Timer();
-            seekFood.Interval = 1;
-            seekFood.Tick += SeekFood_Tick;
-            seekFood.Start();
-
-            Timer move = new Timer();
-            move.Interval = 1;
-            move.Tick += Move_Tick;
-            move.Start();
+            this.FishID = fishID;
+            this.Size = FishController.AllFish.Find(f => f.Id == FishID).DirectionImage.Size;
         }
 
-        private void Move_Tick(object sender, EventArgs e)
+        private void Update(object sender, EventArgs e)
         {
-            if (CurrentTarget == null) return;
-
-            int x = this.Location.X, y = this.Location.Y;
-            if (x < CurrentTarget.Location.X)
+            var fish = FishController.AllFish.Find(f => f.Id == this.FishID);
+            this.BeginInvoke(new Action(() =>
             {
-                x++;
-                this.BackgroundImage = GoingRightImage;
-            }
-            else
+                this.Location = fish.Location;
+                this.BackgroundImage = fish.DirectionImage;
+            }));
+
+            if (fish.IsDead && fish.Location.Y < 0 - this.Height)
             {
-                x--;
-                this.BackgroundImage = GoingLeftImage;
-            }
-            if (y < CurrentTarget.Location.Y) y++;
-            else y--;
-            this.Location = new Point(x, y);
+                FishController.AllFish.Remove(fish);
+                Parent.Controls.Remove(this);
+                this.Dispose();
+                UpdateTimer.Stop();
 
-
-            Rectangle rect1 = new Rectangle(this.Location.X, this.Location.Y, this.Width, this.Height);
-            Rectangle rect2 = new Rectangle(CurrentTarget.Location.X, CurrentTarget.Location.Y, CurrentTarget.Width, CurrentTarget.Height);
-
-            if (rect1.IntersectsWith(rect2))
-            {
-                FoodController.FoodList.Remove(CurrentTarget);
-                ForRemoval = CurrentTarget;
-                CurrentTarget = null;
             }
         }
-
-        private void SeekFood_Tick(object sender, EventArgs e)
+        private void FishUserControl_Load(object sender, EventArgs e)
         {
-            if (FoodController.FoodList.Count == 0) return;
-
-
-            int distance = Math.Abs(FoodController.FoodList[0].Location.X - this.Location.X);
-            foreach (var food in FoodController.FoodList)
-            {
-                int newDistance = Math.Abs(food.Location.X - this.Location.X);
-                if (newDistance <= distance)
-                {
-                    CurrentTarget = food;
-                    distance = newDistance;
-                }
-            }
+            UpdateTimer = new Timer();
+            UpdateTimer.Tick += Update;
+            UpdateTimer.Interval = 1;
+            UpdateTimer.Start();
         }
 
     }
